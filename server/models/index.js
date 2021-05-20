@@ -18,3 +18,4 @@ Destination.HasMany(Tickets, {
 });
 
 module.exports = { User, Tickets, Destination}
+
