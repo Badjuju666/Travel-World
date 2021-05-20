@@ -1,3 +1,4 @@
+const { ggl } = require('apollo-server-express');
 
 const typeDefs = ggl`
     type tickets {
@@ -6,7 +7,7 @@ const typeDefs = ggl`
         SF: Int
         LV: Int
     }
-    type  user {
+    type user {
         
     }
 `

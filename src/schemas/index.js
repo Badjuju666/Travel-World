@@ -1,3 +1,4 @@
+
 const { schema, model } = requier('mongoose');
 
 const userSchema = new Schema(
@@ -6,12 +7,12 @@ const userSchema = new Schema(
             type: String,
             required: true,
             unique: true,
-            match: [/.@.+\..+/],
+            match: [/.@.+\..+/], M
         },
         password: {
             type: String,
             required: true,
             minlength: 5
-        }
+        },
     }
 )
