@@ -1,7 +1,6 @@
-const { Schema, model } = require('mongoose');
+const { Schema } = require('mongoose');
+const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
-
-const ticketSchema = require('./tickets');
 
 const userSchema = new Schema(
     {
@@ -20,14 +19,27 @@ const userSchema = new Schema(
             type: String,
             required: true,
         },
-        savedTickets: [ticketSchema],
-    },
-    {
-        toJSON: {
-            virtuals: true,
-        },
+        // ticket: [ticketSchema],
+    });
+
+userSchema.pre('save', async function (next) {
+    if (this,isNew || this.isModified('password')) {
+        const saltRounds = 10;
+        this.password = await bcrypt.hash(this.password, saltRounds);
     }
-);
+
+    next();
+});
+
+userSchema.methods.isCorrectPassword = async function (password) {
+    return bcrypt.compare(password, this.password);
+};
+
+userSchema.virtual('ticketsCount').get(function () {
+    return this.savedTickets.length;
+});
+
+const User = mongoose.model('User', userSchema);
 
 userSchema.pre('save', async function (next) {
     if (this,isNew || this.isModified('password')) {

@@ -1,4 +1,5 @@
-const { Schema } = require('mongoose');
+const mongoose = require('mongoose');
+const { Schema } = mongoose;
 
 const ticketSchema = new Schema({
     tickets: [
@@ -20,4 +21,6 @@ const ticketSchema = new Schema({
     },
 });
 
-module.exports = ticketSchema;
+const Ticket = mongoose.model('Ticket', ticketSchema);
+
+module.exports = Ticket;

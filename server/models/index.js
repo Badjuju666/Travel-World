@@ -1,20 +1,21 @@
 const User = require('./User');
-const Tickets = require('./tickets');
-const Destination = require('./Destination');
+const Ticket = require('./Ticket');
+const Flight = require('./Flight');
+const Purchase = require('./Purchase');
+// Ticket.belongsTo(User, {
+//     foreignKey: 'user_id',
+//     onDelete: 'CASCADE'
+// });
 
-Tickets.belongsTo(User, {
-    foreignKey: 'user_id',
-    onDelete: 'CASCADE'
-});
+// Destination.belongsTo(User, {
+//     foreignKey: 'user_id',
+//     onDelete: 'CASCADE'
+// });
 
-Destination.belongsTo(User, {
-    foreignKey: 'user_id',
-    onDelete: 'CASCADE'
-});
+// Destination.HasMany(Tickets, {
+//     foreignKey: 'destination_id',
+//     onDelete: 'CASCADE'
+// });
 
-Destination.HasMany(Tickets, {
-    foreignKey: 'destination_id',
-    onDelete: 'CASCADE'
-});
+module.exports = { User, Ticket, Flight, Purchase }
 
-module.exports = { User, Tickets, Destination}
