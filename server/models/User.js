@@ -1,4 +1,5 @@
-const { Schema, model } = require('mongoose');
+const { Schema } = require('mongoose');
+const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
 const ticketSchema = require('./Ticket');
@@ -20,14 +21,8 @@ const userSchema = new Schema(
             type: String,
             required: true,
         },
-        savedTickets: [ticketSchema],
-    },
-    {
-        toJSON: {
-            virtuals: true,
-        },
-    }
-);
+        // ticket: [ticketSchema],
+    });
 
 userSchema.pre('save', async function (next) {
     if (this,isNew || this.isModified('password')) {
@@ -46,6 +41,6 @@ userSchema.virtual('ticketsCount').get(function () {
     return this.savedTickets.length;
 });
 
-const User = model('User', userSchema);
+const User = mongoose.model('User', userSchema);
 
 module.exports = User;

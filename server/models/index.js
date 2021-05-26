@@ -1,7 +1,7 @@
 const User = require('./User');
-// const Ticket = require('./Ticket');
-const Destination = require('./Destination');
-
+const Ticket = require('./Ticket');
+const Flight = require('./Flight');
+const Purchase = require('./Purchase');
 // Ticket.belongsTo(User, {
 //     foreignKey: 'user_id',
 //     onDelete: 'CASCADE'
@@ -17,5 +17,5 @@ const Destination = require('./Destination');
 //     onDelete: 'CASCADE'
 // });
 
-module.exports = { User, Destination}
+module.exports = { User, Ticket, Flight, Purchase }
 
