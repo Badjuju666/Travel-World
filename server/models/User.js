@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const { Schema } = require('mongoose');
-const bcrypt = require('bcrypt');
+// const bcrypt = require('bcrypt');
 const Flight = require('./Flight');
 
 
@@ -30,20 +30,20 @@ const userSchema = new Schema(
             },
         ],
         flights: [Flight.schema]
-    });
-
-userSchema.pre('save', async function (next) {
-    if (this.isNew || this.isModified('password')) {
-        const saltRounds = 10;
-        this.password = await bcrypt.hash(this.password, saltRounds);
-    }
-
-    next();
 });
 
-userSchema.methods.isCorrectPassword = async function (password) {
-    return bcrypt.compare(password, this.password);
-};
+// userSchema.pre('save', async function (next) {
+//     if (this.isNew || this.isModified('password')) {
+//         const saltRounds = 10;
+//         this.password = await bcrypt.hash(this.password, saltRounds);
+//     }
+
+//     next();
+// });
+
+// userSchema.methods.isCorrectPassword = async function (password) {
+//     return bcrypt.compare(password, this.password);
+// };
 
 const User = mongoose.model('User', userSchema);
 
