@@ -1,4 +1,4 @@
-const db = require('./connection')
+const db = require('../config/connection')
 const { User, Ticket, Purchase } = require('../models');
 
 db.once('open', async () => {
@@ -11,7 +11,9 @@ db.once('open', async () => {
     ]);
     console.log('tickets seeded');
 
-    await Purchase.insertMany([
+    await Purchase.insertMany();
+
+    const purchases = await Purchase.insertMany([
         {
             name: 'LA',
             description: 
@@ -25,7 +27,7 @@ db.once('open', async () => {
             name: 'LV',
             description: 
                 'Here is speil on la is super cool',
-            image: 'la.jpg',
+            image: 'lv.jpg',
             tickets: tickets[1]._id,
             price: 400,
             quantity: 2
@@ -34,7 +36,7 @@ db.once('open', async () => {
             name: 'SF',
             description: 
                 'Here is speil on la is super cool',
-            image: 'la.jpg',
+            image: 'sf.jpg',
             tickets: tickets[2]._id,
             price: 400,
             quantity: 2
@@ -56,8 +58,14 @@ db.once('open', async () => {
 
     await User.create({
         username: 'artifical-fairy',
-        email: 'wrongemail@co.com',
-        password: 'weakpw'
+        email: 'wrongemail@gmail.com',
+        password: 'weakpw',
+        flights: [
+            {
+                purchases: [purchases[0]._id, purchases[0]._id, purchases[1]._id]
+            }
+        ]
+        
     });
 
     console.log('users seeded');

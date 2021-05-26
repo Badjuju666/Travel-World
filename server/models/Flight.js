@@ -2,10 +2,12 @@ const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
 const flightSchema = new Schema ({
-    purchseDate: {
-        type: Date,
-        default: Date.now
-    },
+    purchseDate: [
+        {
+            type: Date,
+            default: Date.now
+        },
+    ],
     purchases: [
         {
             type: Schema.Types.ObjectId,

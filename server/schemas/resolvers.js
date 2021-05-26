@@ -99,7 +99,7 @@ const resolvers = {
         addFlight: async (parent, { purchase }, context) => {
             console.log(context);
             if (context.user) {
-              const ticket = new Flight({ purchase });
+              const flight = new Flight({ purchase });
       
               await User.findByIdAndUpdate(context.user._id, { $push: { flights: flight } });
       
