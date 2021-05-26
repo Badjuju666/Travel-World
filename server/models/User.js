@@ -1,51 +1,54 @@
-const { Schema, model } = require('mongoose');
+const { Model, DataTypes } = require('mongoose');
+const mongoose = require('../config/connection.js');
 const bcrypt = require('bcrypt');
 
-const ticketSchema = require('./Ticket');
+class User extends Model {
+    checkPassword(loginPw) {
+        return bcrypt.compareSync(loginPw, this.password);
+    }
+}
 
-const userSchema = new Schema(
+User.init(
     {
-        username: {
-            type: String,
-            required: true,
-            unique: true,
+        id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            primaryKey: true,
+            autoIncrement: true
         },
-        email: {
-            type: String,
-            required: true,
-            unique: true,
-            match: [/.+@.+\..+/, 'Must use a valid email address'],
+        username: {
+            type: DataTypes.STRING,
+            allowNull: true,
         },
         password: {
-            type: String,
-            required: true,
+            type: DataTypes.STRING,
+            allowNull: true,
+            validate: {
+                len: [4]
+            }
+        }
+    },
+
+    {
+        hooks: {
+            async beforeCreate(newUserData) {
+                newUserData.password = await bcrypt.hash(newUserData.password, 10);
+                return newUserData;
+            },
+            async beforeUpdate(updatedUserData) {
+                updatedUserData.password = await bcrypt.hash(updatedUserData.password, 10);
+                return updatedUserData;
+            }
         },
-        savedTickets: [ticketSchema],
+        mongoose,
+        timestamps: false,
+        freezeTableName: true,
+        underscored: true,
+        modelName: 'User'
     },
     {
-        toJSON: {
-            virtuals: true,
-        },
+        mongoose
     }
 );
-
-userSchema.pre('save', async function (next) {
-    if (this,isNew || this.isModified('password')) {
-        const saltRounds = 10;
-        this.password = await bcrypt.hash(this.password, saltRounds);
-    }
-
-    next();
-});
-
-userSchema.methods.isCorrectPassword = async function (password) {
-    return bcrypt.compare(password, this.password);
-};
-
-userSchema.virtual('ticketsCount').get(function () {
-    return this.savedTickets.length;
-});
-
-const User = model('User', userSchema);
 
 module.exports = User;
