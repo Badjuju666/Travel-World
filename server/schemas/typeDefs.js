@@ -12,12 +12,14 @@ const typeDefs = gql`
         _id: ID
         username: String
         email: String
+        isAdmin: Boolean
         flight: [Flight]
         password: String
     }
 
     type Flight {
-        _id: ID
+        _id: ID!
+        name: String
         description: String
         datePurchased: String
         purchase: [Purchase]
@@ -25,16 +27,16 @@ const typeDefs = gql`
     }
 
     type Purchase {
-        _id: ID
+        _id: ID!
         createAt: String
         price: Float
         flight: [Flight]
     }
     type Checkout {
-        session: ID
+        session: ID!
     }
     type Auth {
-        token: ID
+        token: ID!
         user: User
     }
     type Query {
@@ -57,4 +59,4 @@ const typeDefs = gql`
 `
 console.log('typeDefs.js: ', typeof typeDefs);
 
-module.exports = { typeDefs };
+module.exports = typeDefs;

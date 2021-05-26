@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
-const { Schema } = mongoose;
+const { purchases } = require('./Purchase');
+const { Schema, model } = mongoose;
 
 const flightSchema = new Schema ({
     purchseDate: {
@@ -9,7 +10,8 @@ const flightSchema = new Schema ({
     purchases: [
         {
             type: Schema.Types.ObjectId,
-            ref: 'Purchase'
+            ref: 'Purchase',
+            default: purchases
         }
     ]
 });
