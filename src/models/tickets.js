@@ -1,13 +1,6 @@
-const { schema, Model } = require('mongoose');
-const ticket = require('./Index')
+const { Model, User, DataTypes} = require('mongoose');
+const mongoose = require('../config/connection');
 
-const ticketSchema = new Schema(
-    {
-        ticketText: {
-            type: String,
-            
-        }
-    }
-)
-
-module.exports = ticketSchema;
+class tickets extends Model {
+    
+}
