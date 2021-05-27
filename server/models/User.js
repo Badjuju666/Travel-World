@@ -1,49 +1,21 @@
 const mongoose = require('mongoose');
 const { Schema } = require('mongoose');
-// const bcrypt = require('bcrypt');
-const Flight = require('./Flight');
+const purchaseSchema = require('./Purchase.js');
 
-
-const userSchema = new Schema(
-    {
-        username: [
-            {
-                type: String,
-                required: true,
-                unique: true,
-            },
-        ],
-        email: [
-            {
-                type: String,
-                required: true,
-                unique: true,
-                match: [/.+@.+\..+/, 'Must use a valid email address'],
-            },
-        ],
-        password: [
-            {
-                type: String,
-                required: true,
-                unique: true,
-                minlength: 3
-            },
-        ],
-        flights: [Flight.schema]
+const userSchema = new Schema({
+	username: {
+		type: String,
+		required: true,
+		unique: true,
+	},
+	password: {
+		type: String,
+		required: true,
+		unique: true,
+		minlength: 3
+	},
+	purchases: [purchaseSchema]
 });
-
-// userSchema.pre('save', async function (next) {
-//     if (this.isNew || this.isModified('password')) {
-//         const saltRounds = 10;
-//         this.password = await bcrypt.hash(this.password, saltRounds);
-//     }
-
-//     next();
-// });
-
-// userSchema.methods.isCorrectPassword = async function (password) {
-//     return bcrypt.compare(password, this.password);
-// };
 
 const User = mongoose.model('User', userSchema);
 

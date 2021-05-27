@@ -1,18 +1,11 @@
 const { AuthenticationError } = require("apollo-server-express");
 const { User } = require("../models");
-const { signToken } = require("../utils/auth");
+const { signToken } = require("../utils/auth")
 
 const resolvers = {
     Query: {
-        tickets: async () => {
-            return await Ticket.find();
-          },
-        purchase: async (parent, { ticket, user }) => {
+        purchase: async (parent, { user }) => {
             const params = {};
-      
-            if (ticket) {
-              params.ticket = ticket;
-            }
       
             if (user) {
               params.user = {
@@ -20,49 +13,36 @@ const resolvers = {
               };
             }
       
-            return await Purchase.find(params).populate('ticket');
+            return await Purchase.find(params).populate('user');
           },
         purchase: async (parent, { _id }) => {
-            return await Purchase.findById(_id).populate('ticket');
+            return await Purchase.findById(_id).populate('user');
           },
         user: async (parent, args, context) => {
             if (context.user) {
               const user = await User.findById(context.user._id).populate({
-                path: 'flight.purchase',
-                populate: 'flight'
+                path: 'user.purchase',
+                populate: 'user'
               });
       
-              user.ticket.sort((a, b) => b.purchaseDate - a.purchaseDate);
+              user.sort((a, b) => b.purchaseDate - a.purchaseDate);
       
               return user;
             }
       
             throw new AuthenticationError('Not logged in');
         },
-        flight: async (parent, { _id }, context) => {
-            if (context.user) {
-              const user = await User.findById(context.user._id).populate({
-                path: 'flight.purchase',
-                populate: 'ticket'
-              });
-      
-              return user.flight.id(_id);
-            }
-      
-            throw new AuthenticationError('Not logged in');
-        },
         checkout: async (parent, args, context) => {
             const url = new URL(context.headers.referer).origin;
-            const newFlight = new Flight({ purchase: args.purchase });
+            const newPurchase = new Purchase({ purchase: args.purchase });
             const line_items = [];
       
-            const { purchase } = await newFlight.populate('purchase').execPopulate();
+            const { purchase } = await newPurchase.populate('user').execPopulate();
       
             for (let i = 0; i < purchase.length; i++) {
               const purchase = await stripe.purchase.create({
-                name: purchase[i].name,
-                description: purchase[i].description,
-                images: [`${url}/images/${purchase[i].image}`]
+                city: purchase[i].city,
+                quantity: purchase[i].quantity
               });
       
               const price = await stripe.prices.create({
@@ -96,14 +76,14 @@ const resolvers = {
       
             return { token, user };
           },
-        addFlight: async (parent, { purchase }, context) => {
+        addPurchase: async (parent, { user }, context) => {
             console.log(context);
             if (context.user) {
-              const flight = new Flight({ purchase });
+              const purchase = new Purchase({ user });
       
-              await User.findByIdAndUpdate(context.user._id, { $push: { flights: flight } });
+              await User.findByIdAndUpdate(context.user._id, { $push: { purchase: purchases } });
       
-              return flight;
+              return purchase;
             }
       
             throw new AuthenticationError('Not logged in');
@@ -115,10 +95,10 @@ const resolvers = {
       
             throw new AuthenticationError('Not logged in');
           },
-          updateFlight: async (parent, { _id, quantity }) => {
+          updatePurchase: async (parent, { city, quantity }) => {
             const decrement = Math.abs(quantity) * -1;
       
-            return await Flight.findByIdAndUpdate(_id, { $inc: { quantity: decrement } }, { new: true });
+            return await Purchase.findByIdAndUpdate(city, { $inc: { quantity: decrement } }, { new: true });
           },
           login: async (parent, { username, password }) => {
             const user = await User.findOne({ username });
