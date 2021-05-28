@@ -21,7 +21,6 @@ const typeDefs = gql`
         user: [User] 
         _id(username: String): ID
         purchase: [Purchase]
-
         checkout(purchase: [ID]!): Checkout
     }
     type Mutations {

@@ -1,30 +1,30 @@
 const { AuthenticationError } = require("apollo-server-express");
 const { User, Purchase } = require("../models");
-const { signToken } = require("../utils/auth")
+const { signToken } = require("../utils/auth");
 
 const resolvers = {
     Query: {
-        purchase: async (parent, { user }) => {
-            const params = {};
+        // purchase: async (parent, { user }) => {
+        //     const params = {};
       
-            if (user) {
-              params.user = {
-                $regex: user
-              };
-            }
+        //     if (user) {
+        //       params.user = {
+        //         $regex: user
+        //       };
+        //     }
       
-            return await Purchase.find(params).populate('user');
-          },
-        purchase: async (parent, { _id }) => {
-            return await Purchase.findById(_id).populate('user');
-          },
+        //     return await Purchase.find(params).populate('user');
+        //   },
+        // purchase: async (parent, { _id }) => {
+        //     return await Purchase.findById(_id).populate('user');
+        //   },
         user: async (parent, args, context) => {
             if (context.user) {
               const user = await User.findById(context.user._id).populate({
                 path: 'user.purchase',
                 populate: 'user'
               });
-      
+                        //I SUSPECT THIS ISNT REALLY HELPING?
               user.sort((a, b) => b.purchaseDate - a.purchaseDate);
       
               return user;
@@ -34,10 +34,10 @@ const resolvers = {
         },
         checkout: async (parent, args, context) => {
             const url = new URL(context.headers.referer).origin;
-            const newPurchase = new Purchase({ purchase: args.purchase });
+            const newPurchase = new Purchase({ purchase: args.purchase }); //Need to be cautious about newPurchase
             const line_items = [];
       
-            const { purchase } = await newPurchase.populate('user').execPopulate();
+            const { Purchase } = await newPurchase.populate('user').execPopulate();
       
             for (let i = 0; i < purchase.length; i++) {
               const purchase = await stripe.purchase.create({
@@ -72,11 +72,11 @@ const resolvers = {
     Mutations: {
         addUser: async (parent, args) => {
             const user = await User.create(args);
-            const token = signToken(user);
+            const token = signToken(user);  //Token is leading problem preventing graphql playgorund from getting data
       
             return { token, user };
           },
-        addPurchases: async (parent, { user }, context) => {
+        addPurchases: async (parent, { user }, context) => {    //PROBABLY OKAY HERE
             console.log(context);
             if (context.user) { //something up with this !!!
               const purchase = new Purchase({ user });
@@ -88,27 +88,27 @@ const resolvers = {
       
             throw new AuthenticationError('Not logged in');
           },
-          updateUser: async (parent, args, context) => {
+          updateUser: async (parent, args, context) => {   //PROBABLY OKAY HERE BUT IS IT NEEDED???
             if (context.user) {
               return await User.findByIdAndUpdate(context.user._id, args, { new: true });
             }
       
             throw new AuthenticationError('Not logged in');
           },
-          login: async (parent, { username, password }) => {
+          login: async (parent, { username, password }) => {     //PROBABLY OKAY HERE
             const user = await User.findOne({ username });
       
             if (!username) {
               throw new AuthenticationError('Incorrect credentials');
             }
       
-            const nicePw = await username.isCorrectPassword(password);
+            const nicePw = await username.isCorrectPassword(password);    //PROBABLY OKAY HERE
       
             if (!nicePw) {
               throw new AuthenticationError('Incorrect credentials');
             }
       
-            const token = signToken(user);
+            const token = signToken(user); //NOT OKAY HERE TOKEN ISSUE
       
             return { token, user };
           }
