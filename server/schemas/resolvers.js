@@ -1,5 +1,5 @@
 const { AuthenticationError } = require("apollo-server-express");
-const { User } = require("../models");
+const { User, Purchase } = require("../models");
 const { signToken } = require("../utils/auth")
 
 const resolvers = {
@@ -76,9 +76,9 @@ const resolvers = {
       
             return { token, user };
           },
-        addPurchase: async (parent, { user }, context) => {
+        addPurchases: async (parent, { user }, context) => {
             console.log(context);
-            if (context.user) {
+            if (context.user) { //something up with this !!!
               const purchase = new Purchase({ user });
       
               await User.findByIdAndUpdate(context.user._id, { $push: { purchase: purchases } });
@@ -94,11 +94,6 @@ const resolvers = {
             }
       
             throw new AuthenticationError('Not logged in');
-          },
-          updatePurchase: async (parent, { city, quantity }) => {
-            const decrement = Math.abs(quantity) * -1;
-      
-            return await Purchase.findByIdAndUpdate(city, { $inc: { quantity: decrement } }, { new: true });
           },
           login: async (parent, { username, password }) => {
             const user = await User.findOne({ username });

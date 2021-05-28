@@ -20,6 +20,7 @@ const typeDefs = gql`
     type Query {
         user: [User] 
         _id(username: String): ID
+        purchase: [Purchase]
 
         checkout(purchase: [ID]!): Checkout
     }

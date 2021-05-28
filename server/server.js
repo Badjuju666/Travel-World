@@ -14,6 +14,8 @@ const server = new ApolloServer({
     context: authMiddleware
 });
 
+server.applyMiddleware({ app });
+
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use('images', express.static(path.join(__dirname, '../client/build/images')));
@@ -29,6 +31,6 @@ app.get('*', (req, res) => {
 db.once('open', () => {
     app.listen(PORT, () => {
         console.log(`API server running on port ${PORT}!`);
-        console.log(`Use GraphQl at https://localhost:${PORT}${server.graphqlPath}`);
+        console.log(`Use GraphQl at http://localhost:${PORT}${server.graphqlPath}`);
     });
 });
