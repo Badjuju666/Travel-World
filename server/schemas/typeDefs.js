@@ -4,11 +4,15 @@ const typeDefs = gql`
     type User {
         _id: ID
         username: String
-        purchase: [Purchase]
+        password: String
     }
-    type Purchase {
-        city: String
-        quantity: Int
+    type Login {
+        username: String
+        password: String
+    }
+    type Signup {
+        username: String
+        password: String
     }
     type Checkout {
         session: ID
@@ -20,14 +24,13 @@ const typeDefs = gql`
     type Query {
         user: [User] 
         _id(username: String): ID
-        purchase: [Purchase]
+        login: [Login]
+        signup: [Signup]
         checkout(purchase: [ID]!): Checkout
     }
     type Mutations {
+        signup(username: String!, password: String!): Auth
         login(username: String!, password: String!): Auth
-        addUser(username: String!, password: String!): Auth
-        addPurchases(city: String!, quantity: Int!): Purchase
-        updateUser(username: String!, password: String!): User
     }
 `
 console.log('typeDefs.js: ', typeof typeDefs);

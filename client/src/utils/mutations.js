@@ -30,7 +30,7 @@ export const ADD_USER = gql`
     }
 `;
 
-export const ADD_PURCHASES = gql`
+export const SIGN_UP = gql`
     mutation addPurchase(
         $city: String!
         $quantity: Number!

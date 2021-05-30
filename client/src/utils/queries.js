@@ -10,7 +10,7 @@ export const GET_USERS = gql`
     }
 `;
 
-export const GET_PURCHASES = gql`
+export const GET_SIGNUP = gql`
     query {
         purchase {
             city
@@ -30,7 +30,7 @@ export const GET_PURCHASES = gql`
 //     }
 // `;
 
-export const QUERY_CHECKOUT = gql`
+export const QUERY_LOGIN = gql`
     query getCheckout($donation: [ID]!) {
         checkout(donation: $donation) {
             session

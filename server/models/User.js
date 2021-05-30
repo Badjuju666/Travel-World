@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const { Schema } = require('mongoose');
-const purchaseSchema = require('./Purchase.js');
+// const purchaseSchema = require('./Purchase.js');
 
 const userSchema = new Schema({
 	username: {
@@ -14,7 +14,7 @@ const userSchema = new Schema({
 		unique: true,
 		minlength: 3
 	},
-	purchases: [purchaseSchema]
+	// purchases: [purchaseSchema]
 });
 
 const User = mongoose.model('User', userSchema);
