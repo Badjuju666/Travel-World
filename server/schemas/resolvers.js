@@ -1,18 +1,11 @@
 const { AuthenticationError } = require("apollo-server-express");
-const { User } = require("../models");
+const { User, Purchase } = require("../models");
 const { signToken } = require("../utils/auth");
 
 const resolvers = {
     Query: {
-        tickets: async () => {
-            return await Ticket.find();
-          },
-        purchase: async (parent, { ticket, user }) => {
+        login: async (parent, { user }) => {
             const params = {};
-      
-            if (ticket) {
-              params.ticket = ticket;
-            }
       
             if (user) {
               params.user = {
@@ -20,120 +13,102 @@ const resolvers = {
               };
             }
       
-            return await Purchase.find(params).populate('ticket');
+            return await User.find(params).populate('user');
           },
-        purchase: async (parent, { _id }) => {
-            return await Purchase.findById(_id).populate('ticket');
+        signup: async (parent, { _id }) => {
+            return await User.findById(_id).populate('user');
           },
         user: async (parent, args, context) => {
             if (context.user) {
               const user = await User.findById(context.user._id).populate({
-                path: 'flight.purchase',
-                populate: 'flight'
+                path: 'user.purchase',
+                populate: 'user'
               });
-      
-              user.ticket.sort((a, b) => b.purchaseDate - a.purchaseDate);
+                        //I SUSPECT THIS ISNT REALLY HELPING?
+              user.sort((a, b) => b.purchaseDate - a.purchaseDate);
       
               return user;
             }
       
             throw new AuthenticationError('Not logged in');
         },
-        flight: async (parent, { _id }, context) => {
-            if (context.user) {
-              const user = await User.findById(context.user._id).populate({
-                path: 'flight.purchase',
-                populate: 'ticket'
-              });
+        // checkout: async (parent, args, context) => {
+        //     const url = new URL(context.headers.referer).origin;
+        //     const newPurchase = new Purchase({ purchase: args.purchase }); //Need to be cautious about newPurchase
+        //     const line_items = [];
       
-              return user.flight.id(_id);
-            }
+        //     const { Purchase } = await newPurchase.populate('user').execPopulate();
       
-            throw new AuthenticationError('Not logged in');
-        },
-        checkout: async (parent, args, context) => {
-            const url = new URL(context.headers.referer).origin;
-            const newFlight = new Flight({ purchase: args.purchase });
-            const line_items = [];
+        //     for (let i = 0; i < purchase.length; i++) {
+        //       const purchase = await stripe.purchase.create({
+        //         city: purchase[i].city,
+        //         quantity: purchase[i].quantity
+        //       });
       
-            const { purchase } = await newFlight.populate('purchase').execPopulate();
+        //       const price = await stripe.prices.create({
+        //         purchase: purchase.id,
+        //         unit_amount: purchase[i].price * 100,
+        //         currency: 'usd',
+        //       });
       
-            for (let i = 0; i < purchase.length; i++) {
-              const purchase = await stripe.purchase.create({
-                name: purchase[i].name,
-                description: purchase[i].description,
-                images: [`${url}/images/${purchase[i].image}`]
-              });
+        //       line_items.push({
+        //         price: price.id,
+        //         quantity: 1
+        //       });
+        //     }
       
-              const price = await stripe.prices.create({
-                purchase: purchase.id,
-                unit_amount: purchase[i].price * 100,
-                currency: 'usd',
-              });
+        //     const session = await stripe.checkout.sessions.create({
+        //       payment_method_types: ['card'],
+        //       line_items,
+        //       mode: 'payment',
+        //       success_url: `${url}/success?session_id={CHECKOUT_SESSION_ID}`,
+        //       cancel_url: `${url}/`
+        //     });
       
-              line_items.push({
-                price: price.id,
-                quantity: 1
-              });
-            }
-      
-            const session = await stripe.checkout.sessions.create({
-              payment_method_types: ['card'],
-              line_items,
-              mode: 'payment',
-              success_url: `${url}/success?session_id={CHECKOUT_SESSION_ID}`,
-              cancel_url: `${url}/`
-            });
-      
-            return { session: session.id };
-        }
+        //     return { session: session.id };
+        // }
     },
       
     Mutations: {
-        addUser: async (parent, args) => {
+        signup: async (parent, args) => {
             const user = await User.create(args);
-            const token = signToken(user);
+            const token = signToken(user);  //Token is leading problem preventing graphql playgorund from getting data
       
             return { token, user };
           },
-        addFlight: async (parent, { purchase }, context) => {
-            console.log(context);
-            if (context.user) {
-              const ticket = new Flight({ purchase });
+        // addPurchases: async (parent, { user }, context) => {    //PROBABLY OKAY HERE
+        //     console.log(context);
+        //     if (context.user) { //something up with this !!!
+        //       const purchase = new Purchase({ user });
       
-              await User.findByIdAndUpdate(context.user._id, { $push: { flights: flight } });
+        //       await User.findByIdAndUpdate(context.user._id, { $push: { purchase: purchases } });
       
-              return flight;
-            }
+        //       return purchase;
+        //     }
       
-            throw new AuthenticationError('Not logged in');
-          },
-          updateUser: async (parent, args, context) => {
-            if (context.user) {
-              return await User.findByIdAndUpdate(context.user._id, args, { new: true });
-            }
+        //     throw new AuthenticationError('Not logged in');
+        //   },
+          // updateUser: async (parent, args, context) => {   //PROBABLY OKAY HERE BUT IS IT NEEDED???
+          //   if (context.user) {
+          //     return await User.findByIdAndUpdate(context.user._id, args, { new: true });
+          //   }
       
-            throw new AuthenticationError('Not logged in');
-          },
-          updateFlight: async (parent, { _id, quantity }) => {
-            const decrement = Math.abs(quantity) * -1;
-      
-            return await Flight.findByIdAndUpdate(_id, { $inc: { quantity: decrement } }, { new: true });
-          },
-          login: async (parent, { username, password }) => {
+          //   throw new AuthenticationError('Not logged in');
+          // },
+          login: async (parent, { username, password }) => {     //PROBABLY OKAY HERE
             const user = await User.findOne({ username });
       
             if (!username) {
               throw new AuthenticationError('Incorrect credentials');
             }
       
-            const nicePw = await username.isCorrectPassword(password);
+            const nicePw = await password.isCorrectPassword(password);    //PROBABLY OKAY HERE
       
             if (!nicePw) {
               throw new AuthenticationError('Incorrect credentials');
             }
       
-            const token = signToken(user);
+            const token = signToken(user); //NOT OKAY HERE TOKEN ISSUE
       
             return { token, user };
           }
