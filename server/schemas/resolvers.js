@@ -1,119 +1,60 @@
 const { AuthenticationError } = require("apollo-server-express");
+const { user } = require("../config/connection");
 const { User, Purchase } = require("../models");
 const { signToken } = require("../utils/auth");
+const bcrypt = require('bcryptjs');
+const Jwt = require('jsonwebtoken');
+
+function poofToken(user) {
+  return Jwt.sign(
+    {
+      id: user.id,
+      username: user.username,
+    },
+    INVISIBLE_KEY,
+    { expiresIn: '1h' }
+  );
+}
 
 const resolvers = {
-    Query: {
-        login: async (parent, { user }) => {
-            const params = {};
-      
-            if (user) {
-              params.user = {
-                $regex: user
-              };
-            }
-      
-            return await User.find(params).populate('user');
-          },
-        signup: async (parent, { _id }) => {
-            return await User.findById(_id).populate('user');
-          },
-        user: async (parent, args, context) => {
-            if (context.user) {
-              const user = await User.findById(context.user._id).populate({
-                path: 'user.purchase',
-                populate: 'user'
-              });
-                        //I SUSPECT THIS ISNT REALLY HELPING?
-              user.sort((a, b) => b.purchaseDate - a.purchaseDate);
-      
-              return user;
-            }
-      
-            throw new AuthenticationError('Not logged in');
-        },
-        // checkout: async (parent, args, context) => {
-        //     const url = new URL(context.headers.referer).origin;
-        //     const newPurchase = new Purchase({ purchase: args.purchase }); //Need to be cautious about newPurchase
-        //     const line_items = [];
-      
-        //     const { Purchase } = await newPurchase.populate('user').execPopulate();
-      
-        //     for (let i = 0; i < purchase.length; i++) {
-        //       const purchase = await stripe.purchase.create({
-        //         city: purchase[i].city,
-        //         quantity: purchase[i].quantity
-        //       });
-      
-        //       const price = await stripe.prices.create({
-        //         purchase: purchase.id,
-        //         unit_amount: purchase[i].price * 100,
-        //         currency: 'usd',
-        //       });
-      
-        //       line_items.push({
-        //         price: price.id,
-        //         quantity: 1
-        //       });
-        //     }
-      
-        //     const session = await stripe.checkout.sessions.create({
-        //       payment_method_types: ['card'],
-        //       line_items,
-        //       mode: 'payment',
-        //       success_url: `${url}/success?session_id={CHECKOUT_SESSION_ID}`,
-        //       cancel_url: `${url}/`
-        //     });
-      
-        //     return { session: session.id };
-        // }
-    },
+  // Query: {
+  //   traveler: async (parent, args, context) => {
+  //     if (context.user) {
+  //       const userData = await User.findOne({ _id: context.user._id }).select('-__v - password');
+
+  //       return userData;
+  //     }
+
+  //     throw new AuthenticationError('Not Logging In')
+  //   },       
+  // },
       
     Mutations: {
-        signup: async (parent, args) => {
-            const user = await User.create(args);
+        signUp: async (parent, args) => {
+            const newUser = await User.create(args);
+            user.push(newUser)
             const token = signToken(user);  //Token is leading problem preventing graphql playgorund from getting data
-      
-            return { token, user };
+
+            return { token, newuser };
           },
-        // addPurchases: async (parent, { user }, context) => {    //PROBABLY OKAY HERE
-        //     console.log(context);
-        //     if (context.user) { //something up with this !!!
-        //       const purchase = new Purchase({ user });
+        login: async (parent, { username, password }) => {     //PROBABLY OKAY HERE
+          const user = await User.findOne({ username });
       
-        //       await User.findByIdAndUpdate(context.user._id, { $push: { purchase: purchases } });
-      
-        //       return purchase;
-        //     }
-      
-        //     throw new AuthenticationError('Not logged in');
-        //   },
-          // updateUser: async (parent, args, context) => {   //PROBABLY OKAY HERE BUT IS IT NEEDED???
-          //   if (context.user) {
-          //     return await User.findByIdAndUpdate(context.user._id, args, { new: true });
-          //   }
-      
-          //   throw new AuthenticationError('Not logged in');
-          // },
-          login: async (parent, { username, password }) => {     //PROBABLY OKAY HERE
-            const user = await User.findOne({ username });
-      
-            if (!username) {
-              throw new AuthenticationError('Incorrect credentials');
-            }
-      
-            const nicePw = await password.isCorrectPassword(password);    //PROBABLY OKAY HERE
-      
-            if (!nicePw) {
-              throw new AuthenticationError('Incorrect credentials');
-            }
-      
-            const token = signToken(user); //NOT OKAY HERE TOKEN ISSUE
-      
-            return { token, user };
+          if (!username) {
+            throw new AuthenticationError('nope');
           }
+      
+          const nicePw = await password.isCorrectPassword(password);    //PROBABLY OKAY HERE
+      
+          if (!nicePw) {
+            throw new AuthenticationError('nope');
+          }
+      
+          const token = signToken(username); //NOT OKAY HERE TOKEN ISSUE
+      
+          return { token, username };          }
         }
       };
       
-      module.exports = { resolvers };
+module.exports = { resolvers };
       

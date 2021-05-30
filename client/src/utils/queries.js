@@ -1,24 +1,24 @@
 import gql from 'graphql-tag';
 
 
-export const GET_USERS = gql`
-    query {
-        users {
-            username
-            _id
-        }
-    }
+export const QUERY_TRAVELER = gql`
+   {
+       traveler {
+           _id
+           username
+           password
+       }
+   }
 `;
 
-export const GET_SIGNUP = gql`
-    query {
-        purchase {
-            city
-            quantity
-            userID
-        }
-    }
-`;
+// export const QUERY_SIGNUP = gql`
+//     {
+//         signUp {
+//             username: $username
+//             password: $password
+//         } 
+//     }
+// `;
 
 // export const GET_TICKETS = gql`
 //     query tickets($id: ID!) {
@@ -30,10 +30,10 @@ export const GET_SIGNUP = gql`
 //     }
 // `;
 
-export const QUERY_LOGIN = gql`
-    query getCheckout($donation: [ID]!) {
-        checkout(donation: $donation) {
-            session
-        }
-    }
-`;
+// export const QUERY_LOGIN = gql`
+//     query getCheckout($donation: [ID]!) {
+//         checkout(donation: $donation) {
+//             session
+//         }
+//     }
+// `;

@@ -6,30 +6,18 @@ const typeDefs = gql`
         username: String
         password: String
     }
-    type Login {
-        username: String
-        password: String
-    }
-    type Signup {
-        username: String
-        password: String
-    }
-    type Checkout {
-        session: ID
-    }
+
     type Auth {
         token: ID
         user: User
     }
+
     type Query {
-        user: [User] 
-        _id(username: String): ID
-        login: [Login]
-        signup: [Signup]
-        checkout(purchase: [ID]!): Checkout
+        traveler: [User!]!
     }
+
     type Mutations {
-        signup(username: String!, password: String!): Auth
+        signUp(username: String!, password: String!): Auth
         login(username: String!, password: String!): Auth
     }
 `
